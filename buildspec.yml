@@ -1,0 +1,11 @@
+version: 0.2
+# Frontend repo root = contents of frontend/. Writes config.js from env vars, then syncs to the B1 bucket.
+# NOTE: if you use the generated API Gateway SDK, keep config.js (it only holds API_URL / API_KEY).
+phases:
+  build:
+    commands:
+      - |
+        cat > config.js <<EOT
+        window.APP_CONFIG = { API_URL: "$API_URL", API_KEY: "$API_KEY" };
+        EOT
+      - aws s3 sync . "s3://$FRONTEND_BUCKET" --delete --exclude "buildspec.yml" --exclude ".git/*" --exclude "README.md"
